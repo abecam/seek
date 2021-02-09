@@ -255,34 +255,40 @@ https://trac.macports.org/wiki/howto/MySQL
 
 Important steps after installation:
 
-Select mysql8 at the default mysql
+Select mysql8 at the default mysql:
+
     sudo port select mysql mysql8
     
-Start the server
+Start the server:
+
     sudo port load mysql8-server     
     
 Initialize the database.
 
-<Important>Doing so will give you a temporary root password. You **need** to write it down as it will be (very) difficult to reset it afterwards. At the first actual use of mysql (using the mysql command), you will need to change the root password (see below).
+Doing so will give you a temporary root password. You **need** to write it down as it will be (very) difficult to reset it afterwards. At the first actual use of mysql (using the mysql command), you will need to change the root password (see below).
     
     sudo /opt/local/lib/mysql8/bin/mysqld --initialize --user=_mysql
 
-First start of mysql: 
+First start of mysql:
+
     mysql -uroot -p
 -> use given password
 
 You cannot do anything before you set up a new password for root:
+
     ALTER USER 'root'@'localhost' IDENTIFIED BY 'newpassword';
 
 MySql has a new authentication method by default. To ensure that Seek can connect to it, you need to specify that the Seek DB user (set in Database.yml) can use the old "native password" method:
+
     ALTER USER 'seekmainuser'@'localhost' IDENTIFIED WITH mysql_native_password
 
 Then activate the new privileges:
+
     flush privileges;
 
 ### PostGres Gem install
 
-To install PostGres using Gem, it needs the path to the binaries of it:
+To install PostGres support using Gem, it needs the path to the binaries of it:
     sudo PATH=$PATH:/Library/PostgreSQL/x.y/bin gem install pg
 
 for PostGres 10 for instance, it would be:
@@ -298,7 +304,7 @@ Puma needs an option to compile with the new Xcode:
 
 By default, mysql client connects to mysql server through socket at
 /tmp/mysql.sock. However, you might install by default the .sock file at
-/opt/local/var/run/mysql56/mysqld.sock. Therefore, the .sock file needs to be
+/opt/local/var/run/mysql8/mysqld.sock. Therefore, the .sock file needs to be
 re-configured in database.yml
 
     socket: /opt/local/var/run/mysql8/mysqld.sock
@@ -315,6 +321,8 @@ soffice command. E.g. you might add the following line into ~/.bashrc
 ### Connect to MySQL from a client
 
 By default MacPorts deactivates fully remote connections, which are needed for most SQL clients. To activate it, you can edit the my.cnf:
+
+    sudo vim /opt/local/etc/mysql8/my.cnf
 
 ```shell
 # Use default MacPorts settings
@@ -347,7 +355,10 @@ Then restart MySQL (you might need to kill the process):
     sudo port unload mysql8-server 
     
     ps -ax | grep mysql
--> mysqld still there, using the listed PID:
+-> if mysqld still there, using the listed PID:
+
     sudo kill PID
-    
+   
+then
+
     sudo port load mysql8-server 
