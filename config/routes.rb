@@ -844,12 +844,16 @@ SEEK::Application.routes.draw do
     resources :projects, :people, :programmes, :samples, :assays, :studies, :investigations, :data_files, :sops, :publications, :collections
   end
 
+<<<<<<< HEAD
   ### SPARQL ###
   resources :sparql, only: [:index] do
     collection do
       post :query
     end
   end
+=======
+  mount ImageUploader.derivation_endpoint => "/derivations/image"
+>>>>>>> 4122b9c67f30d912367a98fc44cddfcaef642215
 
   ### MISC MATCHES ###
   get '/search/' => 'search#index', as: :search
