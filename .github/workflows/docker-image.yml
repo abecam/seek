@@ -3,7 +3,7 @@ name: Test Docker Image Build & Deploy
 on:
   push:
     branches:
-      - main
+      - master
       - workflowhub
       - rails-7-hacking-rebased
       - full-test-suite
