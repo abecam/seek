@@ -14,22 +14,43 @@ on:
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write   # required to push to ghcr.io
 
     steps:
       - uses: actions/checkout@v4
+
+      # Login to GitHub Container Registry
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Create volumes
         run: |
           docker volume create --name=seek-filestore
           docker volume create --name=seek-mysql-db
           docker volume create --name=seek-solr-data
           docker volume create --name=seek-cache
-      - name: Build and run the Docker containers
+
+      - name: Build image
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/seek:latest
+          docker build -t $IMAGE_NAME -f Dockerfile .
+
+      - name: Push image to GHCR
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/seek:latest
+          docker push $IMAGE_NAME
+
+      - name: Build and run docker-compose environment
         run: docker compose --file docker-compose.yml --file docker-compose.build.yml up --build --detach --wait
         continue-on-error: true
+
       - name: Wait and check containers
         run: sleep 120 && docker ps -a
         continue-on-error: true
+
       - name: Check app status
         run: ruby script/check_deployment.rb
